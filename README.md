@@ -44,6 +44,7 @@ If you use the local virtual environment:
 | `remove-phone [name] [phone]` | Remove one phone number from a contact. |
 | `contact [name]` | Show the full contact card. |
 | `all` | Show all contacts. |
+| `search [query]` | Search contacts by name or phone. Show full contact card |
 | `add-birthday [name] [DD.MM.YYYY]` | Add or update birthday. |
 | `show-birthday [name]` | Show birthday for one contact. |
 | `birthdays [--days=7]` | Show upcoming birthdays. |
