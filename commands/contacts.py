@@ -122,6 +122,26 @@ def show_contact(context: CommandContext) -> CommandResult:
 
     return CommandResult(message=str(record))
 
+
+@register_command(
+    "search",
+    usage="search [query]",
+    description="Search contacts by name or phone",
+    category="contacts",
+)
+@input_error
+def search_contacts(context: CommandContext) -> CommandResult:
+    """Search contacts by name, address, phone, or email."""
+    validate_command_args(context.command, context.args, 1)
+
+    query = " ".join(context.args).strip()
+    matches = context.book.search(query)
+
+    if not matches:
+        return CommandResult(message="No matching contacts found")
+
+    return CommandResult(message="\n".join(str(record) for record in matches))
+
 @register_command(
     "all",
     usage="all",

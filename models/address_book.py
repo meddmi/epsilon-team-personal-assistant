@@ -3,7 +3,7 @@ from collections import UserDict
 from datetime import date, datetime, timedelta
 from typing import Optional
 
-from models.record import Record
+from models.record import Record, Phone
 from exceptions import ContactError
 
 
@@ -27,6 +27,32 @@ class AddressBook(UserDict[str, Record]):
         :return: Record object if found, else None
         """
         return self.data.get(name)
+
+    def search(self, query: str) -> list[Record]:
+        """
+        Search contacts by name or phone.
+
+        :param query: text to search for
+        :return: list of matching records
+        """
+        normalized_query = query.strip().lower()
+        normalized_phone = Phone.normalize(normalized_query)
+        results = []
+
+        for record in self.data.values():
+            searchable_values = [
+                record.name.value.lower(),
+                *(phone.value for phone in record.phones),
+            ]
+
+            if any(normalized_query in value for value in searchable_values):
+                results.append(record)
+                continue
+
+            if normalized_phone and any(phone.value == normalized_phone for phone in record.phones):
+                results.append(record)
+
+        return results
 
     def delete(self, name: str) -> None:
         """
