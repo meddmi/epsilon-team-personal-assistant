@@ -5,3 +5,6 @@ class ContactError(Exception):
 
 class CommandError(Exception):
     """Base command error."""
+
+class NoteError(Exception):
+    """Base user-facing note error."""

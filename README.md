@@ -31,6 +31,7 @@ If you use the local virtual environment:
 - The address book is loaded automatically when the application starts.
 - The current state is saved automatically when the application exits.
 - Data is stored in a local pickle file named `.addressbook.pkl`.
+- Notes are loaded and saved independently in `.notes.pkl`.
 - If the storage file does not exist or cannot be read, the application starts
   with an empty data.
 
@@ -52,6 +53,11 @@ If you use the local virtual environment:
 | `add-email [name] [email]` | Add new email. |
 | `show-birthday [name]` | Show birthday for one contact. |
 | `birthdays [--days=7]` | Show upcoming birthdays. |
+| `add-note [name] [title] [text]` | Create a note. |
+| `notes` | Show all notes. |
+| `note [name]` | Show one note by name. |
+| `edit-note [name] [title] [text]` | Edit a note by name. |
+| `delete-note [name]` | Delete a note by name. |
 | `help [command]` | Show all commands or detailed help for one command. |
 | `close` or `exit` | Close the app. |
 

@@ -2,7 +2,7 @@
 import importlib
 import pkgutil
 
-from storage import AddressBookStorage
+from storage import AddressBookStorage, NotesStorage
 from cli import run_bot
 from registry import get_registry
 
@@ -21,8 +21,8 @@ def main() -> None:
     load_commands()
     commands_registry=get_registry()
 
-    with AddressBookStorage() as book:
-        run_bot(book=book, registry=commands_registry)
+    with AddressBookStorage() as book, NotesStorage() as notes:
+        run_bot(book=book, notes=notes, registry=commands_registry)
 
 if __name__ == "__main__":
     main()
