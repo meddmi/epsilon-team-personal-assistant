@@ -35,7 +35,7 @@ def add_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "change-address",
-    usage="change-address [name] [old address] [new address]",
+    usage="change-address [name] [new address]",
     description="Change an existing address for a contact",
     category="contacts",
 )
@@ -56,7 +56,7 @@ def change_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "remove-address",
-    usage="remove-address [name] [address]",
+    usage="remove-address [name]",
     description="Remove one address from a contact",
     category="contacts",
 )
