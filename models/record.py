@@ -1,7 +1,7 @@
 """Contact record model."""
 from typing import Optional
 
-from models.fields import Birthday, Name, Phone, Email
+from models.fields import Birthday, Name, Phone, Email, Address
 from exceptions import ContactError
 
 
@@ -12,6 +12,7 @@ class Record:
         self.name = Name(name)
         self.phones = []
         self.emails = []
+        self.address = None
         self.birthday = None
 
     def add_phone(self, phone: str) -> None:
@@ -130,6 +131,37 @@ class Record:
 
         return None
 
+    def add_address(self, address: str) -> None:
+        """
+        Add an address to the record.
+        :param address: the address to add
+        :return: None
+        """
+        if self.address is not None:
+            raise ContactError("Address already exists, use change-address to update it")
+
+        self.address = Address(address)
+
+    def change_address(self, new_address: str) -> None:
+        """
+        Change the address of the record.
+        :param new_address: the new address to set
+        :return: None
+        """
+        if self.address is None:
+            raise ContactError("Address not found")
+
+        self.address = Address(new_address)
+
+    def remove_address(self) -> None:
+        """
+        Remove the address from the record.
+        :return: None
+        """
+        if self.address is None:
+            raise ContactError("Address not found")
+
+        self.address = None
 
     def add_birthday(self, birthday: str) -> None:
         """
@@ -143,9 +175,11 @@ class Record:
         phones = "; ".join(str(phone) for phone in self.phones) or "-"
         emails = "; ".join(str(email) for email in self.emails) or "-"
         birthday = str(self.birthday.format()) if self.birthday else "-"
+        address = str(self.address.value) if self.address else "-"
         return (
             f"Contact name: {self.name.value}, "
             f"Birthday: {birthday}, "
             f"Phones: {phones}, "
             f"Emails: {emails}"
+            f"Address: {address},"
         )
