@@ -96,3 +96,31 @@ class Email(Field):
         if not cls.EMAIL_REGEX.fullmatch(value):
             raise ContactError("Invalid email format")
 
+class Address(Field):
+    """Represents an address contacts field in the address book."""
+
+    ADDRESS_REGEX = re.compile(
+        r"^[a-zA-Z0-9\s,.\-/#+]{5,100}$"
+    )
+
+    def __init__(self, value: str) -> None:
+        normalized_address = self.normalize(value)
+        self.validate(normalized_address)
+
+        super().__init__(normalized_address)
+
+    @staticmethod
+    def normalize(value: str) -> str:
+        """Normalize address contacts."""
+
+        if not isinstance(value, str):
+            raise ContactError("Address must be a string")
+
+        return value.strip().lower()
+
+    @classmethod
+    def validate(cls, value: str) -> None:
+        """Validate address contats."""
+
+        if not cls.ADDRESS_REGEX.fullmatch(value):
+            raise ContactError("Invalid address format")

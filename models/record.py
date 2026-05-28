@@ -1,7 +1,7 @@
 """Contact record model."""
 from typing import Optional
 
-from models.fields import Birthday, Name, Phone, Email
+from models.fields import Birthday, Name, Phone, Email, Address
 from exceptions import ContactError
 
 
@@ -12,6 +12,7 @@ class Record:
         self.name = Name(name)
         self.phones = []
         self.emails = []
+        self.address = []
         self.birthday = None
 
     def add_phone(self, phone: str) -> None:
@@ -130,6 +131,67 @@ class Record:
 
         return None
 
+    def add_address(self, address: str) -> None:
+        """
+        Add an address to the record.
+        :param adress: the adress contacts to add
+        :return: None
+        """
+        found_address_obj = self.find_address(address)
+
+        if found_address_obj is not None:
+            raise ContactError(
+                f"Address {address} is already added to the contact"
+            )
+
+        self.address.append(Address(address))
+
+    def edit_address(self, old_address: str, new_address: str) -> None:
+        """
+        Edit an existing adress contats.
+        :param old_address: the address contacts to be replaced
+        :param new_address: the new address contacts to replace with
+        :return: None
+        """
+        found_address_obj = self.find_address(old_address)
+        existing_address = self.find_address(new_address)
+
+        if found_address_obj is None:
+            raise ContactError("Address contacts not found")
+        
+        if existing_address and existing_address is not found_address_obj:
+            raise ContactError(
+                f"New address {new_address} already exists in the contact"
+            )
+
+        found_address_obj.value = Address(new_address).value
+
+    def remove_address(self, address: str) -> None:
+        """
+        Remove an address contacts from the record.
+        :param address: the address contacts to remove
+        :return: None
+        """
+        found_address_obj = self.find_address(address)
+
+        if not found_address_obj:
+            raise ContactError("Address contacts not found")
+
+        self.address.remove(found_address_obj)
+
+    def find_address(self, address: str) -> Optional[Address]:
+        """
+        Find an address contacts in the record.
+        :param address: the address contacts to find
+        :return: Address object if found, else None
+        """
+        clean_address = Address.normalize(address)
+
+        for address_obj in self.address:
+            if address_obj.value == clean_address:
+                return address_obj
+
+        return None
 
     def add_birthday(self, birthday: str) -> None:
         """
