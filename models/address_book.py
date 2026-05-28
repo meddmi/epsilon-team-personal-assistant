@@ -46,7 +46,6 @@ class AddressBook(UserDict[str, Record]):
 
             if any(normalized_query in value for value in searchable_values):
                 results.append(record)
-                continue
 
         return results
 
