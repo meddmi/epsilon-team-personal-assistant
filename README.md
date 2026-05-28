@@ -40,26 +40,29 @@ If you use the local virtual environment:
 | Command | Description |
 | --- | --- |
 | `hello` | Show a greeting. |
+| `help [command]` | Show all commands or detailed help for one command. |
+| `close` or `exit` | Close the app. |
 | `add [name] [phone]` | Add a contact or add a phone to an existing contact. |
 | `change [name] [old phone] [new phone]` | Change a phone number. |
-| `change-email [name] [old email] [new email]` | Change an email. |
 | `delete [name]` | Delete a contact. |
 | `remove-phone [name] [phone]` | Remove one phone number from a contact. |
-| `remove-email [name] [email]` | Remove one email from a contact. |
 | `contact [name]` | Show the full contact card. |
 | `all` | Show all contacts. |
 | `search [query]` | Search contacts by name or phone. Show full contact card |
-| `add-birthday [name] [DD.MM.YYYY]` | Add or update birthday. |
 | `add-email [name] [email]` | Add new email. |
+| `change-email [name] [old email] [new email]` | Change an email. |
+| `remove-email [name] [email]` | Remove one email from a contact. |
+| `add-birthday [name] [DD.MM.YYYY]` | Add or update birthday. |
 | `show-birthday [name]` | Show birthday for one contact. |
 | `birthdays [--days=7]` | Show upcoming birthdays. |
+| `add-address [name] [address]` | Add new contact address. |
+| `change-address [name] [new address]` | Change the contact address. |
+| `remove-address [name]` | Remove address from a contact. |
 | `add-note [name] [title] [text]` | Create a note. |
-| `notes` | Show all notes. |
-| `note [name]` | Show one note by name. |
 | `edit-note [name] [title] [text]` | Edit a note by name. |
 | `delete-note [name]` | Delete a note by name. |
-| `help [command]` | Show all commands or detailed help for one command. |
-| `close` or `exit` | Close the app. |
+| `note [name]` | Show one note by name. |
+| `notes` | Show all notes. |
 
 ## Validation Rules
 
