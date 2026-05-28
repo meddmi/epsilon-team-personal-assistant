@@ -2,7 +2,7 @@
 from functools import wraps
 
 from dto import CommandResult
-from exceptions import ContactError, CommandError
+from exceptions import ContactError, CommandError, NoteError
 from registry import get_command_spec
 
 def input_error(func):
@@ -14,6 +14,7 @@ def input_error(func):
         except (
             CommandError,
             ContactError,
+            NoteError,
             ValueError,
             IndexError,
             KeyError,

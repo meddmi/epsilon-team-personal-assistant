@@ -1,6 +1,6 @@
 """Module for core application data structures."""
 from dataclasses import dataclass
-from models import AddressBook
+from models import AddressBook, Notes
 
 
 @dataclass(frozen=True, slots=True)
@@ -10,6 +10,7 @@ class CommandContext:
     """
     command: str
     book: AddressBook
+    notes: Notes
     args: list[str]
 
 @dataclass(frozen=True, slots=True)
