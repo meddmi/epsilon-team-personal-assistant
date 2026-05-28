@@ -53,7 +53,7 @@ If you use the local virtual environment:
 | `show-birthday [name]` | Show birthday for one contact. |
 | `birthdays [--days=7]` | Show upcoming birthdays. |
 | `add-address [name] [address]` | Add new contact address. |
-| `change-address [name] [old address] [new address]` | Change the contact address. |
+| `change-address [name] [new address]` | Change the contact address. |
 | `remove-address [name] [address]` | Remove address from a contact. |
 | `help [command]` | Show all commands or detailed help for one command. |
 | `close` or `exit` | Close the app. |

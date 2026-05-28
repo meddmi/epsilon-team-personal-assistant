@@ -28,8 +28,7 @@ def add_address(context: CommandContext) -> CommandResult:
     if record is None:
         raise ContactError("Contact not found")
 
-    if address is not None:
-        record.add_address(address)
+    record.add_address(address)
 
     return CommandResult(message="Contact updated")
 
@@ -44,19 +43,15 @@ def add_address(context: CommandContext) -> CommandResult:
 @input_error
 def change_address(context: CommandContext) -> CommandResult:
     """Change the address of an existing contact."""
-    validate_command_args(
-        context.command,
-        context.args,
-        3,
-    )
+    validate_command_args(context.command, context.args, 2)
 
-    name, old_address, new_address, *_ = context.args
+    name, new_address, *_ = context.args
     record = context.book.find(name)
 
     if record is None:
         raise ContactError("Contact not found")
 
-    record.edit_address(old_address, new_address)
+    record.change_address(new_address)
     return CommandResult(message="Contact updated")
 
 @register_command(
@@ -69,17 +64,13 @@ def change_address(context: CommandContext) -> CommandResult:
 @input_error
 def remove_address(context: CommandContext) -> CommandResult:
     """Delete an address from contact."""
-    validate_command_args(
-        context.command,
-        context.args,
-        2,
-    )
+    validate_command_args(context.command, context.args, 1)
 
-    name, address, *_ = context.args
+    name, *_ = context.args
     record = context.book.find(name)
 
     if record is None:
         raise ContactError("Contact not found")
 
-    record.remove_address(address)
+    record.remove_address()
     return CommandResult(message="Address removed")
