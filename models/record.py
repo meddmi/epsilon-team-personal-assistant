@@ -36,9 +36,15 @@ class Record:
         :return: None
         """
         found_phone_obj = self.find_phone(old_phone)
+        found_new_phone = self.find_phone(new_phone)
 
         if found_phone_obj is None:
             raise ContactError("Phone number not found")
+        
+        if found_new_phone and found_new_phone is not found_phone_obj:
+            raise ContactError(
+                f"New phone number {new_phone} already exists in the contact"
+            )
 
         found_phone_obj.value = Phone(new_phone).value
 
@@ -92,12 +98,12 @@ class Record:
         :return: None
         """
         found_email_obj = self.find_email(old_email)
-        existing_email = self.find_email(new_email)
+        found_new_email = self.find_email(new_email)
 
         if found_email_obj is None:
             raise ContactError("Email address not found")
         
-        if existing_email and existing_email is not found_email_obj:
+        if found_new_email and found_new_email is not found_email_obj:
             raise ContactError(
                 f"New email {new_email} already exists in the contact"
             )
