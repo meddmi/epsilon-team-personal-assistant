@@ -40,7 +40,7 @@ class Record:
 
         if found_phone_obj is None:
             raise ContactError("Phone number not found")
-        
+
         if found_new_phone and found_new_phone is not found_phone_obj:
             raise ContactError(
                 f"New phone number {new_phone} already exists in the contact"
@@ -67,10 +67,8 @@ class Record:
         :param phone: the phone number to find
         :return: Phone object if found, else None
         """
-        clean_phone = Phone.normalize(phone)
-
         for p in self.phones:
-            if p.value == clean_phone:
+            if p.value == phone:
                 return p
 
         return None
@@ -102,7 +100,7 @@ class Record:
 
         if found_email_obj is None:
             raise ContactError("Email address not found")
-        
+
         if found_new_email and found_new_email is not found_email_obj:
             raise ContactError(
                 f"New email {new_email} already exists in the contact"
@@ -186,6 +184,6 @@ class Record:
             f"Contact name: {self.name.value}, "
             f"Birthday: {birthday}, "
             f"Phones: {phones}, "
-            f"Emails: {emails}"
-            f"Address: {address},"
+            f"Emails: {emails}, "
+            f"Address: {address}, "
         )

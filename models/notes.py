@@ -1,10 +1,33 @@
 """Independent notes collection model."""
 from collections import UserDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import uuid4
 
 from exceptions import NoteError
+
+
+@dataclass(frozen=True, slots=True)
+class Tag:
+    """Represents a normalized note tag."""
+
+    value: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "value", self.normalize(self.value))
+
+    @staticmethod
+    def normalize(tag: str) -> str:
+        """Normalize tag: strip, lowercase, ensure # prefix."""
+        if not isinstance(tag, str):
+            raise NoteError("Tag must be a string")
+
+        tag = tag.strip().lower()
+        return tag if tag.startswith("#") else f"#{tag}"
+
+    def __str__(self) -> str:
+        """Return the normalized tag value."""
+        return self.value
 
 
 @dataclass(slots=True)
@@ -16,7 +39,7 @@ class Note:
     title: str
     text: str
     created_at: datetime
-    tags: list[str] = field(default_factory=list)
+    tags: list[Tag] = field(default_factory=list)
 
     @classmethod
     def create(cls, name: str, title: str, text: str) -> "Note":
@@ -57,15 +80,9 @@ class Note:
         self.title = clean_title
         self.text = clean_text
 
-    @staticmethod
-    def _normalize_tag(tag: str) -> str:
-        """Normalize tag: strip, lowercase, ensure # prefix."""
-        tag = tag.strip().lower()
-        return tag if tag.startswith("#") else f"#{tag}"
-
     def add_tag(self, tag: str) -> None:
         """Add a tag to the note."""
-        normalized = self._normalize_tag(tag)
+        normalized = Tag(tag)
 
         if normalized in self.tags:
             raise NoteError(f"Tag {normalized} already exists in this note")
@@ -74,7 +91,7 @@ class Note:
 
     def remove_tag(self, tag: str) -> None:
         """Remove a tag from the note."""
-        normalized = self._normalize_tag(tag)
+        normalized = Tag(tag)
 
         if normalized not in self.tags:
             raise NoteError(f"Tag {normalized} not found in this note")
@@ -83,15 +100,17 @@ class Note:
 
     def has_tag(self, tag: str) -> bool:
         """Check if the note has a specific tag."""
-        return self._normalize_tag(tag) in self.tags
+        normalized = Tag(tag)
+        return normalized in self.tags
 
     def __str__(self) -> str:
         """Return a compact string representation of the note."""
         created_at_str = self.created_at.strftime("%d.%m.%Y %H:%M:%S")
+        tags_str = " ".join(str(tag) for tag in self.tags) or "-"
         if self.text == self.title:
-            return f"{self.name} | {created_at_str} | {self.title}"
+            return f"{self.name} | {created_at_str} | {self.title} | {tags_str}"
 
-        return f"{self.name} | {created_at_str} | {self.title} | {self.text}"
+        return f"{self.name} | {created_at_str} | {self.title} | {self.text} | {tags_str}"
 
 
 class Notes(UserDict[str, Note]):
@@ -129,7 +148,7 @@ class Notes(UserDict[str, Note]):
     def list_notes(self) -> list[Note]:
         """Return all notes sorted by creation timestamp."""
         return sorted(self.data.values(), key=lambda note: note.created_at)
-    
+
     def find_by_tags_any(self, *tags: str) -> list[Note]:
         """Return notes that contain ANY of the given tags."""
         return [
@@ -195,5 +214,5 @@ class Notes(UserDict[str, Note]):
         if not hasattr(note, "created_at"):
             note.created_at = datetime.now()
 
-        if not hasattr(note, "tags"): 
+        if not hasattr(note, "tags"):
             note.tags = []

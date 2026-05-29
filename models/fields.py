@@ -54,18 +54,15 @@ class Phone(Field):
     """Represents a phone number field in the address book."""
 
     def __init__(self, value: str) -> None:
-        normalized_value = self.normalize(value)
+        self.validate(value)
 
-        if len(normalized_value) != 10:
+        super().__init__(value)
+
+    @classmethod
+    def validate(cls, value: str) -> None:
+        """Validate that phone number containing only digits."""
+        if not re.fullmatch(r"^\d{10}$", value):
             raise ContactError("Phone number must contain 10 digits")
-
-        super().__init__(normalized_value)
-
-    @staticmethod
-    def normalize(value: str) -> str:
-        """Return phone number containing only digits."""
-        return re.sub(r"\D", "", value)
-
 
 class Email(Field):
     """Represents an email address field in the address book."""

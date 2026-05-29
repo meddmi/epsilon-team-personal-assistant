@@ -1,8 +1,26 @@
 """Module for command registry management."""
 from dataclasses import dataclass
+from enum import Enum
 from typing import Callable
 
 from dto import CommandResult, CommandContext
+
+
+class CompletionSource(Enum):
+    """Supported sources for command argument completion."""
+
+    COMMAND = "command"
+    CONTACT = "contact"
+    NOTE = "note"
+    CHOICES = "choices"
+
+
+@dataclass(frozen=True, slots=True)
+class ArgCompletionSpec:
+    """Describe how one positional CLI argument should be completed."""
+
+    source: CompletionSource
+    values: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,10 +32,21 @@ class CommandSpec:
     usage: str
     description: str
     category: str = "general"
+    arg_completions: tuple[ArgCompletionSpec, ...] = ()
 
 
 _registry: dict[str, Callable[[CommandContext], CommandResult]] = {}
 _command_specs: dict[str, CommandSpec] = {}
+
+
+def completion_source(source: CompletionSource) -> ArgCompletionSpec:
+    """Build a completion spec backed by a named dynamic source."""
+    return ArgCompletionSpec(source=source)
+
+
+def completion_choices(*values: str) -> ArgCompletionSpec:
+    """Build a completion spec backed by a fixed list of values."""
+    return ArgCompletionSpec(source=CompletionSource.CHOICES, values=values)
 
 
 def register_command(
@@ -26,6 +55,7 @@ def register_command(
     usage: str | None = None,
     description: str | None = None,
     category: str = "general",
+    arg_completions: tuple[ArgCompletionSpec, ...] = (),
 ):
     """Decorator to register a command and its metadata in the registry."""
 
@@ -37,6 +67,7 @@ def register_command(
             usage=usage or name,
             description=description or (func.__doc__ or "").strip() or name,
             category=category,
+            arg_completions=arg_completions,
         )
         return func
 
