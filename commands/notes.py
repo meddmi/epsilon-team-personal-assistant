@@ -9,27 +9,53 @@ Module for notes commands:
 - remove-tag
 - find-by-tag
 """
+from rich.console import Group
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+
 from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from dto import CommandResult, CommandContext
 from exceptions import NoteError
-
-
-def _join_note_text(args: list[str]) -> str:
-    """Build note text from command arguments."""
-    return " ".join(args).strip()
+from models import Note
 
 
 def _parse_note_content(args: list[str]) -> tuple[str, str, str]:
     """Return note name, title, and text from command arguments."""
     name, title, *text_parts = args
-    text = _join_note_text(text_parts) if text_parts else title
+    text = " ".join(text_parts).strip() if text_parts else title
     return name, title, text
+
+def _build_note_panel(note: Note) -> Panel:
+    """Build a detail view for one note."""
+    content = Group(
+        Text(note.title, style="bold white"),
+        Text(note.text, style="white"),
+        Text(
+            " ".join(str(tag) for tag in note.tags) or "-", style="italic cyan"
+        ),
+        Text(
+            f"Created: {note.created_at.strftime('%d.%m.%Y %H:%M:%S')}",
+            style="italic yellow",
+        ),
+    )
+
+    return Panel(
+        content,
+        title=note.name,
+        title_align="left",
+        border_style="blue",
+    )
+
+def _build_note_panels(notes: list[Note]) -> Group:
+    """Build a stacked set of note panels."""
+    return Group(*(_build_note_panel(note) for note in notes))
 
 
 @register_command(
     "add-note",
-    usage='add-note [name] [title] [text]',
+    usage='add-note <name> <title> [text]',
     description="Create a new note by name and title",
     category="notes",
 )
@@ -52,12 +78,20 @@ def add_note(context: CommandContext) -> CommandResult:
 @input_error
 def show_notes(context: CommandContext) -> CommandResult:
     """Show all notes."""
-    return CommandResult(message=str(context.notes))
+    notes = sorted(
+        context.notes.list_notes(),
+        key=lambda note: note.created_at,
+        reverse=True,
+    )
+    if not notes:
+        return CommandResult(message="No notes found")
+
+    return CommandResult(message=_build_note_panels(notes))
 
 
 @register_command(
     "note",
-    usage="note [name]",
+    usage="note <name>",
     description="Show one note by name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -73,12 +107,12 @@ def show_note(context: CommandContext) -> CommandResult:
     if note is None:
         raise NoteError("Note not found")
 
-    return CommandResult(message=str(note))
+    return CommandResult(message=_build_note_panel(note))
 
 
 @register_command(
     "edit-note",
-    usage='edit-note [name] [title] [text]',
+    usage='edit-note <name> <title> [text]',
     description="Edit an existing note by name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -95,7 +129,7 @@ def edit_note(context: CommandContext) -> CommandResult:
 
 @register_command(
     "delete-note",
-    usage="delete-note [name]",
+    usage="delete-note <name>",
     description="Delete a note by name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -111,7 +145,7 @@ def delete_note(context: CommandContext) -> CommandResult:
 
 @register_command(
     "add-tag",
-    usage="add-tag [name] [tag]",
+    usage="add-tag <name> <tag>",
     description="Add a tag to an existing note",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -132,7 +166,7 @@ def add_tag(context: CommandContext) -> CommandResult:
 
 @register_command(
     "remove-tag",
-    usage="remove-tag [name] [tag]",
+    usage="remove-tag <name> <tag>",
     description="Remove a tag from an existing note",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -153,7 +187,7 @@ def remove_tag(context: CommandContext) -> CommandResult:
 
 @register_command(
     "find-by-tag",
-    usage="find-by-tag [tag1] [tag2] ...",
+    usage="find-by-tag <tag1> [tag2] [...]",
     description="Find notes by tags (returns notes with ANY of the given tags)",
     category="notes",
     arg_completions=(completion_source(CompletionSource.COMMAND),)
@@ -168,4 +202,5 @@ def find_by_tag(context: CommandContext) -> CommandResult:
     if not notes:
         return CommandResult(message="No notes found for given tags")
 
-    return CommandResult(message="\n".join(str(note) for note in notes))
+    notes = sorted(notes, key=lambda note: note.created_at, reverse=True)
+    return CommandResult(message=_build_note_panels(notes))

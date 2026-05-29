@@ -1,5 +1,6 @@
 """Module for core application data structures."""
 from dataclasses import dataclass
+from rich.console import RenderableType
 from models import AddressBook, Notes
 
 
@@ -17,9 +18,9 @@ class CommandContext:
 class CommandResult:
     """
     Represent command execution result.
-    message: str - user-facing message to display after command execution.
+    message: user-facing Rich renderable or plain string to display after command execution.
     exit: bool - if True tells the main loop to stop the application.
     """
-    message: str
+    message: RenderableType
     error: str = ""
     exit: bool = False

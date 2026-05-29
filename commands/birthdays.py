@@ -4,15 +4,17 @@ Module for the contact' birthday related commands:
 - show-birthday
 - birthdays
 """
+from rich.table import Table
+
 from registry import CompletionSource, completion_choices, completion_source, register_command
-from commands.utils import input_error, validate_command_args, parse_named_args
+from commands.utils import input_error, validate_command_args
 from exceptions import ContactError
 from dto import CommandResult, CommandContext
 
 
 @register_command(
     "add-birthday",
-    usage="add-birthday [name] [DD.MM.YYYY]",
+    usage="add-birthday <name> <DD.MM.YYYY>",
     description="Add or update a birthday for a contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -37,7 +39,7 @@ def add_birthday(context: CommandContext) -> CommandResult:
 
 @register_command(
     "show-birthday",
-    usage="show-birthday [name]",
+    usage="show-birthday <name>",
     description="Show the birthday for one contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -59,24 +61,33 @@ def show_birthday(context: CommandContext) -> CommandResult:
 
 @register_command(
     "birthdays",
-    usage="birthdays [--days=7]",
+    usage="birthdays [days]",
     description="Show contacts with upcoming birthdays",
     category="contacts",
-    arg_completions=(completion_choices("--days=7", "--days=14", "--days=30"),),
+    arg_completions=(completion_choices("7", "14", "30"),),
 )
 @input_error
 def birthdays(context: CommandContext) -> CommandResult:
     """Show upcoming birthdays within the next 7 days."""
-    _, options = parse_named_args(context.args)
-    days = int(options.get("days", 7))
-
+    days = int(context.args[0]) if len(context.args) >= 1 else 7
     upcoming_birthdays = context.book.get_upcoming_birthdays(days)
 
     if not upcoming_birthdays:
         return CommandResult(message="No upcoming birthdays")
 
-    message = "\n".join(
-        f"{item['name']}: birthday {item['birthday']}, congratulate on {item['congratulation_date']}"
-        for item in upcoming_birthdays
+    table = Table(
+        header_style="bold cyan",
+        box=None,
+        expand=True,
+        pad_edge=False,
     )
-    return CommandResult(message=message)
+    table.add_column("Name", style="bold green")
+    table.add_column("Congratulate On", style="yellow")
+
+    for item in upcoming_birthdays:
+        table.add_row(
+            item["name"],
+            item["congratulation_date"],
+        )
+
+    return CommandResult(message=table)

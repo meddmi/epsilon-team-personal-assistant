@@ -5,6 +5,8 @@ Module for the base contacts commands:
 - phone
 - all
 """
+from rich.table import Table
+
 from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from exceptions import ContactError
@@ -12,9 +14,41 @@ from dto import CommandResult, CommandContext
 from models import Record
 
 
+def _format_contact_value(values: list[object]) -> str:
+    """Join repeated contact field values or return a placeholder."""
+    return "\n".join(str(value) for value in values) or "-"
+
+
+def _build_contacts_table(records: list[Record]) -> Table:
+    """Build a Rich table for one or more contact records."""
+    table = Table(
+        header_style="bold cyan",
+        box=None,
+        expand=True,
+        pad_edge=False,
+    )
+    column_style = "green"
+    table.add_column("Name", style=column_style)
+    table.add_column("Birthday", style=column_style)
+    table.add_column("Phones", style=column_style)
+    table.add_column("Emails", style=column_style)
+    table.add_column("Address", style=column_style)
+
+    for record in records:
+        table.add_row(
+            record.name.value,
+            record.birthday.format() if record.birthday else "-",
+            _format_contact_value(record.phones),
+            _format_contact_value(record.emails),
+            record.address.value if record.address else "-",
+        )
+
+    return table
+
+
 @register_command(
     "add",
-    usage='add [name] [phone]',
+    usage='add <name> <phone>',
     description="Add a contact or append a phone to an existing contact",
     category="contacts"
 )
@@ -38,7 +72,7 @@ def add_contact(context: CommandContext) -> CommandResult:
 
 @register_command(
     "change",
-    usage="change [name] [old phone] [new phone]",
+    usage="change <name> <old phone> <new phone>",
     description="Change an existing phone number for a contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -63,7 +97,7 @@ def change_contact(context: CommandContext) -> CommandResult:
 
 @register_command(
     "delete",
-    usage="delete [name]",
+    usage="delete <name>",
     description="Delete a contact by name",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -83,7 +117,7 @@ def delete_contact(context: CommandContext) -> CommandResult:
 
 @register_command(
     "remove-phone",
-    usage="remove-phone [name] [phone]",
+    usage="remove-phone <name> <phone>",
     description="Remove one phone number from a contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -108,7 +142,7 @@ def remove_phone(context: CommandContext) -> CommandResult:
 
 @register_command(
     "contact",
-    usage="contact [name]",
+    usage="contact <name>",
     description="Show the full contact card by name",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -124,12 +158,12 @@ def show_contact(context: CommandContext) -> CommandResult:
     if record is None:
         raise ContactError("Contact not found")
 
-    return CommandResult(message=str(record))
+    return CommandResult(message=_build_contacts_table([record]))
 
 
 @register_command(
     "search",
-    usage="search [query]",
+    usage="search <query>",
     description="Search contacts by name or phone",
     category="contacts",
 )
@@ -144,7 +178,7 @@ def search_contacts(context: CommandContext) -> CommandResult:
     if not matches:
         return CommandResult(message="No matching contacts found")
 
-    return CommandResult(message="\n".join(str(record) for record in matches))
+    return CommandResult(message=_build_contacts_table(matches))
 
 @register_command(
     "all",
@@ -158,8 +192,6 @@ def show_all(context: CommandContext) -> CommandResult:
     if not context.book:
         return CommandResult(message="No contacts found")
 
-    result = "\n".join(
-        str(record)
-        for record in context.book.values()
-    )
-    return CommandResult(message=result)
+    records = list(context.book.values())
+    records.sort(key=lambda record: record.name.value.lower())
+    return CommandResult(message=_build_contacts_table(records))

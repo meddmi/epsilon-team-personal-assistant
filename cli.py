@@ -1,7 +1,7 @@
 """Module for the assistant bot CLI."""
 from typing import Callable
 import shlex
-from rich.console import Console
+from rich.console import Console, RenderableType
 
 from dto import CommandResult, CommandContext
 from models import AddressBook, Notes
@@ -12,9 +12,13 @@ from prompting import create_prompt_session
 console = Console()
 
 
-def print_message(message: str, style: str) -> None:
-    """Print a message to the console with the specified style."""
-    console.print(message, style=style, markup=False)
+def print_message(message: RenderableType, style: str | None = None) -> None:
+    """Print plain strings or Rich renderables to the console."""
+    if isinstance(message, str):
+        console.print(message, style=style, markup=False)
+        return
+
+    console.print(message)
 
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:

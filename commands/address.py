@@ -12,7 +12,7 @@ from dto import CommandResult, CommandContext
 
 @register_command(
     "add-address",
-    usage='add-address [name] [address]',
+    usage='add-address <name> <address>',
     description="Add an address to existing contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -36,7 +36,7 @@ def add_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "change-address",
-    usage="change-address [name] [new address]",
+    usage="change-address <name> <new address>",
     description="Change an existing address for a contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
@@ -58,7 +58,7 @@ def change_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "remove-address",
-    usage="remove-address [name]",
+    usage="remove-address <name>",
     description="Remove one address from a contact",
     category="contacts",
     arg_completions=(completion_source(CompletionSource.CONTACT),),
