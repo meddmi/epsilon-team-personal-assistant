@@ -5,6 +5,9 @@ Module for notes commands:
 - note
 - edit-note
 - delete-note
+- add-tag
+- remove-tag
+- find-by-tag
 """
 from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
@@ -57,7 +60,7 @@ def show_notes(context: CommandContext) -> CommandResult:
     usage="note [name]",
     description="Show one note by name",
     category="notes",
-    arg_completions=(completion_source(CompletionSource.NOTE),),
+    arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def show_note(context: CommandContext) -> CommandResult:
@@ -78,7 +81,7 @@ def show_note(context: CommandContext) -> CommandResult:
     usage='edit-note [name] [title] [text]',
     description="Edit an existing note by name",
     category="notes",
-    arg_completions=(completion_source(CompletionSource.NOTE),),
+    arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def edit_note(context: CommandContext) -> CommandResult:
@@ -95,7 +98,7 @@ def edit_note(context: CommandContext) -> CommandResult:
     usage="delete-note [name]",
     description="Delete a note by name",
     category="notes",
-    arg_completions=(completion_source(CompletionSource.NOTE),),
+    arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def delete_note(context: CommandContext) -> CommandResult:
@@ -105,3 +108,64 @@ def delete_note(context: CommandContext) -> CommandResult:
     name, *_ = context.args
     context.notes.delete_note(name)
     return CommandResult(message="Note deleted")
+
+@register_command(
+    "add-tag",
+    usage="add-tag [name] [tag]",
+    description="Add a tag to an existing note",
+    category="notes",
+    arg_completions=(completion_source(CompletionSource.NOTE),)
+)
+@input_error
+def add_tag(context: CommandContext) -> CommandResult:
+    """Add a tag to an existing note."""
+    validate_command_args(context.command, context.args, 2)
+
+    name, tag, *_ = context.args
+    note = context.notes.find(name)
+
+    if note is None:
+        raise NoteError("Note not found")
+
+    note.add_tag(tag)
+    return CommandResult(message=f"Tag added to note: {note.name}")
+
+@register_command(
+    "remove-tag",
+    usage="remove-tag [name] [tag]",
+    description="Remove a tag from an existing note",
+    category="notes",
+    arg_completions=(completion_source(CompletionSource.NOTE),)
+)
+@input_error
+def remove_tag(context: CommandContext) -> CommandResult:
+    """Remove a tag from an existing note."""
+    validate_command_args(context.command, context.args, 2)
+
+    name, tag, *_ = context.args
+    note = context.notes.find(name)
+
+    if note is None:
+        raise NoteError("Note not found")
+
+    note.remove_tag(tag)
+    return CommandResult(message=f"Tag removed from note: {note.name}")
+
+@register_command(
+    "find-by-tag",
+    usage="find-by-tag [tag1] [tag2] ...",
+    description="Find notes by tags (returns notes with ANY of the given tags)",
+    category="notes",
+    arg_completions=(completion_source(CompletionSource.COMMAND),)
+)
+@input_error
+def find_by_tag(context: CommandContext) -> CommandResult:
+    """Find notes by one or more tags."""
+    validate_command_args(context.command, context.args, 1)
+
+    notes = context.notes.find_by_tags_any(*context.args)
+
+    if not notes:
+        return CommandResult(message="No notes found for given tags")
+
+    return CommandResult(message="\n".join(str(note) for note in notes))
