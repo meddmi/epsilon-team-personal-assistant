@@ -6,7 +6,7 @@ Module for notes commands:
 - edit-note
 - delete-note
 """
-from registry import register_command
+from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from dto import CommandResult, CommandContext
 from exceptions import NoteError
@@ -57,6 +57,7 @@ def show_notes(context: CommandContext) -> CommandResult:
     usage="note [name]",
     description="Show one note by name",
     category="notes",
+    arg_completions=(completion_source(CompletionSource.NOTE),),
 )
 @input_error
 def show_note(context: CommandContext) -> CommandResult:
@@ -77,6 +78,7 @@ def show_note(context: CommandContext) -> CommandResult:
     usage='edit-note [name] [title] [text]',
     description="Edit an existing note by name",
     category="notes",
+    arg_completions=(completion_source(CompletionSource.NOTE),),
 )
 @input_error
 def edit_note(context: CommandContext) -> CommandResult:
@@ -93,6 +95,7 @@ def edit_note(context: CommandContext) -> CommandResult:
     usage="delete-note [name]",
     description="Delete a note by name",
     category="notes",
+    arg_completions=(completion_source(CompletionSource.NOTE),),
 )
 @input_error
 def delete_note(context: CommandContext) -> CommandResult:

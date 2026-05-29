@@ -2,7 +2,13 @@
 Module for the help command
 """
 from dto import CommandResult, CommandContext
-from registry import get_command_spec, get_command_specs, register_command
+from registry import (
+    CompletionSource,
+    completion_source,
+    get_command_spec,
+    get_command_specs,
+    register_command,
+)
 
 
 def _build_help_message() -> str:
@@ -39,6 +45,7 @@ def _build_detailed_help_message(command_name: str) -> str:
     usage="help [command]",
     description="Show all commands or detailed help for one command",
     category="system",
+    arg_completions=(completion_source(CompletionSource.COMMAND),),
 )
 def help_command(context: CommandContext) -> CommandResult:
     """Show available commands."""

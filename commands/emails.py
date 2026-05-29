@@ -4,7 +4,7 @@ Module for the contact' emails related commands:
 - remove-email
 - change-email
 """
-from registry import register_command
+from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from exceptions import ContactError
 from dto import CommandResult, CommandContext
@@ -15,6 +15,7 @@ from dto import CommandResult, CommandContext
     usage='add-email [name] [email]',
     description="Add an email to existing contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def add_email(context: CommandContext) -> CommandResult:
@@ -38,6 +39,7 @@ def add_email(context: CommandContext) -> CommandResult:
     usage="change-email [name] [old email] [new email]",
     description="Change an existing email for a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def change_email(context: CommandContext) -> CommandResult:
@@ -63,6 +65,7 @@ def change_email(context: CommandContext) -> CommandResult:
     usage="remove-email [name] [email]",
     description="Remove one email from a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def remove_email(context: CommandContext) -> CommandResult:

@@ -1,19 +1,21 @@
 """Module for the assistant bot CLI."""
 from typing import Callable
 import shlex
-from prompt_toolkit import prompt
 from rich.console import Console
 
 from dto import CommandResult, CommandContext
 from models import AddressBook, Notes
 from exceptions import CommandError
 from commands.utils import input_error
+from prompting import create_prompt_session
 
 console = Console()
+
 
 def print_message(message: str, style: str) -> None:
     """Print a message to the console with the specified style."""
     console.print(message, style=style, markup=False)
+
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     """Parse user input into command and arguments."""
@@ -24,6 +26,7 @@ def parse_input(user_input: str) -> tuple[str, list[str]]:
 
     cmd = parts[0].strip().lower()
     return cmd, parts[1:]
+
 
 @input_error
 def process_command(
@@ -43,12 +46,15 @@ def process_command(
 
     return result
 
+
 def run_bot(
     book: AddressBook,
     notes: Notes,
     registry: dict[str, Callable[..., CommandResult]]
 ) -> None:
     """Run assistant bot loop."""
+    session = create_prompt_session(book, notes, registry)
+
     print_message("Welcome to the assistant bot!", "green")
     help_command = registry.get("help")
     if help_command is not None:
@@ -57,7 +63,11 @@ def run_bot(
 
     try:
         while True:
-            user_input = prompt("Enter a command: ")
+            user_input = session.prompt("Enter a command: ")
+
+            if not user_input.strip():
+                continue
+
             result = process_command(book, notes, registry, user_input)
 
             if result.error:
@@ -67,5 +77,5 @@ def run_bot(
 
             if result.exit:
                 break
-    except KeyboardInterrupt, EOFError:
+    except (KeyboardInterrupt, EOFError):
         print_message("\nGood bye!", "green")

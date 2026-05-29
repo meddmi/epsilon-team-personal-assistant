@@ -5,7 +5,7 @@ Module for the base contacts commands:
 - phone
 - all
 """
-from registry import register_command
+from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from exceptions import ContactError
 from dto import CommandResult, CommandContext
@@ -16,7 +16,7 @@ from models import Record
     "add",
     usage='add [name] [phone]',
     description="Add a contact or append a phone to an existing contact",
-    category="contacts",
+    category="contacts"
 )
 @input_error
 def add_contact(context: CommandContext) -> CommandResult:
@@ -41,6 +41,7 @@ def add_contact(context: CommandContext) -> CommandResult:
     usage="change [name] [old phone] [new phone]",
     description="Change an existing phone number for a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def change_contact(context: CommandContext) -> CommandResult:
@@ -65,6 +66,7 @@ def change_contact(context: CommandContext) -> CommandResult:
     usage="delete [name]",
     description="Delete a contact by name",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def delete_contact(context: CommandContext) -> CommandResult:
@@ -84,6 +86,7 @@ def delete_contact(context: CommandContext) -> CommandResult:
     usage="remove-phone [name] [phone]",
     description="Remove one phone number from a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def remove_phone(context: CommandContext) -> CommandResult:
@@ -108,6 +111,7 @@ def remove_phone(context: CommandContext) -> CommandResult:
     usage="contact [name]",
     description="Show the full contact card by name",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def show_contact(context: CommandContext) -> CommandResult:

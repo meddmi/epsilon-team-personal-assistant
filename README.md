@@ -26,6 +26,13 @@ If you use the local virtual environment:
 .venv/bin/python main.py
 ```
 
+## CLI Input Features
+
+- Up and down arrows cycle through commands entered in the current session.
+- The prompt shows suggestions from the current session history as you type.
+- `Tab` completes command names and a small set of common arguments such as
+  `help` targets, contact or note names, and `birthdays --days=...`.
+
 ## Data Persistence
 
 - The address book is loaded automatically when the application starts.

@@ -4,7 +4,7 @@ Module for the contact' birthday related commands:
 - show-birthday
 - birthdays
 """
-from registry import register_command
+from registry import CompletionSource, completion_choices, completion_source, register_command
 from commands.utils import input_error, validate_command_args, parse_named_args
 from exceptions import ContactError
 from dto import CommandResult, CommandContext
@@ -15,6 +15,7 @@ from dto import CommandResult, CommandContext
     usage="add-birthday [name] [DD.MM.YYYY]",
     description="Add or update a birthday for a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def add_birthday(context: CommandContext) -> CommandResult:
@@ -39,6 +40,7 @@ def add_birthday(context: CommandContext) -> CommandResult:
     usage="show-birthday [name]",
     description="Show the birthday for one contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 @input_error
 def show_birthday(context: CommandContext) -> CommandResult:
@@ -60,6 +62,7 @@ def show_birthday(context: CommandContext) -> CommandResult:
     usage="birthdays [--days=7]",
     description="Show contacts with upcoming birthdays",
     category="contacts",
+    arg_completions=(completion_choices("--days=7", "--days=14", "--days=30"),),
 )
 @input_error
 def birthdays(context: CommandContext) -> CommandResult:
