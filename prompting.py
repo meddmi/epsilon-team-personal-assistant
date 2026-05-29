@@ -10,7 +10,7 @@ from prompt_toolkit.history import InMemoryHistory
 
 from dto import CommandResult
 from models import AddressBook, Notes
-from registry import ArgCompletionSpec, CompletionSource, get_command_specs
+from registry import ArgCompletionSpec, CompletionSource, CommandSpec, get_command_specs
 
 
 class AssistantCompleter(Completer):
@@ -134,16 +134,41 @@ class AssistantCompleter(Completer):
                 display_meta=meta,
             )
 
-
 def create_prompt_session(
     book: AddressBook,
     notes: Notes,
     registry: dict[str, Callable[..., CommandResult]],
 ) -> PromptSession:
     """Build a prompt session with in-memory history and CLI completion."""
-    return PromptSession(
+    session = PromptSession(
         history=InMemoryHistory(),
         auto_suggest=AutoSuggestFromHistory(),
         completer=AssistantCompleter(book, notes, registry),
+        bottom_toolbar=lambda: _build_toolbar_text(get_command_specs(), session),
         complete_while_typing=True,
     )
+    return session
+
+def _build_toolbar_text(
+    command_specs: dict[str, CommandSpec],
+    session: PromptSession,
+) -> str:
+    """Return contextual help for the currently typed command."""
+    buffer_text = session.default_buffer.text
+    parts, _ = _parse_input_for_completion(buffer_text)
+
+    if not parts:
+        return "Type a command and press Tab for suggestions."
+
+    spec = command_specs.get(parts[0].lower())
+    if spec is None:
+        return "Unknown command."
+
+    return f"{spec.usage} - {spec.description}"
+
+def _parse_input_for_completion(user_input: str) -> tuple[list[str], bool]:
+    """Return words and space existence at the end of input."""
+    stripped_text = user_input.lstrip()
+    ends_with_space = user_input.endswith(" ")
+    words = stripped_text.split()
+    return (words, ends_with_space)
