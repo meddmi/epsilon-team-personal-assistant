@@ -44,7 +44,7 @@ class AddressBook(UserDict[str, Record]):
                 record.birthday.format() if record.birthday else "",
                 record.address.value.lower() if record.address else "",
                 *(phone.value for phone in record.phones),
-                *(email.value for email in record.emails),
+                *(email.value.lower() for email in record.emails),
             ]
 
             if any(normalized_query in value for value in searchable_values):
@@ -67,10 +67,8 @@ class AddressBook(UserDict[str, Record]):
     def get_upcoming_birthdays(self, days: int = 7) -> list[dict[str, str]]:
         """
         Find contacts who should be congratulated within the next days.
-        If a birthday falls on Saturday or Sunday, the congratulation date is moved
-        to the following Monday.
         :return: list of dictionaries with 'name' and 'congratulation_date' keys
-        for records with birthdays in the next 7 days
+        for records with birthdays in the next days (7 by default)
         """
 
         def get_birthday_for_year(birthday: date, year: int) -> date:

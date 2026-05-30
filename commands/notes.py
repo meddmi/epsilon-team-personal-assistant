@@ -2,6 +2,7 @@
 Module for notes commands:
 - add-note
 - notes
+- tag-sorted-notes
 - note
 - search-notes
 - edit-note
@@ -19,6 +20,7 @@ from commands.utils import input_error, validate_command_args
 from dto import CommandResult, CommandContext
 from exceptions import NoteError
 from models import Note
+from text_validation import validate_and_censor_note
 
 
 def _parse_note_content(args: list[str]) -> tuple[str, str, str]:
@@ -27,14 +29,26 @@ def _parse_note_content(args: list[str]) -> tuple[str, str, str]:
     text = " ".join(text_parts).strip() if text_parts else title
     return name, title, text
 
-def _build_note_panel(note: Note) -> Panel:
+
+def _sorted_note_tags(note: Note) -> list[str]:
+    """Return note tags sorted alphabetically for display."""
+    return sorted(str(tag) for tag in note.tags)
+
+
+def _note_first_tag_sort_key(note: Note) -> tuple[str, str]:
+    """Return sort key based on the note's first alphabetical tag."""
+    sorted_tags = _sorted_note_tags(note)
+    first_tag = sorted_tags[0] if sorted_tags else chr(127)
+    return first_tag, note.name.lower()
+
+
+def _build_note_panel(note: Note, *, sort_tags: bool = False) -> Panel:
     """Build a detail view for one note."""
+    tags = _sorted_note_tags(note) if sort_tags else [str(tag) for tag in note.tags]
     content = Group(
-        Text(note.title, style="bold white"),
-        Text(note.text, style="white"),
-        Text(
-            " ".join(str(tag) for tag in note.tags) or "-", style="italic cyan"
-        ),
+        Text(validate_and_censor_note(note.title), style="bold white"),
+        Text(validate_and_censor_note(note.text), style="white"),
+        Text(" ".join(tags) or "-", style="italic cyan"),
         Text(
             f"Created: {note.created_at.strftime('%d.%m.%Y %H:%M:%S')}",
             style="italic yellow",
@@ -43,27 +57,28 @@ def _build_note_panel(note: Note) -> Panel:
 
     return Panel(
         content,
-        title=f"{note.name}({note.id})",
+        title=f"{validate_and_censor_note(note.name)}({note.id})",
         title_align="left",
         border_style="blue",
         expand=False
     )
 
-def _build_note_panels(notes: list[Note]) -> Group:
+
+def _build_note_panels(notes: list[Note], *, sort_tags: bool = False) -> Group:
     """Build a stacked set of note panels."""
-    return Group(*(_build_note_panel(note) for note in notes))
+    return Group(*(_build_note_panel(note, sort_tags=sort_tags) for note in notes))
 
 
 @register_command(
     "add-note",
-    usage='add-note <name> <title> <text>',
+    usage='add-note <name> <title> [text]',
     description="Create a new note by name, title, and text",
     category="notes",
 )
 @input_error
 def add_note(context: CommandContext) -> CommandResult:
     """Create a new note."""
-    validate_command_args(context.command, context.args, 3)
+    validate_command_args(context.command, context.args, 2)
 
     name, title, text = _parse_note_content(context.args)
     note = context.notes.create_note(name, title, text)
@@ -88,6 +103,25 @@ def show_notes(context: CommandContext) -> CommandResult:
         return CommandResult(message="No notes found")
 
     return CommandResult(message=_build_note_panels(notes))
+
+
+@register_command(
+    "tag-sorted-notes",
+    usage="tag-sorted-notes",
+    description="Show all notes sorted by their first alphabetical tag",
+    category="notes",
+)
+@input_error
+def show_tag_sorted_notes(context: CommandContext) -> CommandResult:
+    """Show all notes sorted by tags."""
+    notes = sorted(
+        context.notes.list_notes(),
+        key=_note_first_tag_sort_key,
+    )
+    if not notes:
+        return CommandResult(message="No notes found")
+
+    return CommandResult(message=_build_note_panels(notes, sort_tags=True))
 
 @register_command(
     "note",
@@ -130,7 +164,7 @@ def search_notes(context: CommandContext) -> CommandResult:
 
 @register_command(
     "edit-note",
-    usage='edit-note <id/name> <title> <text>',
+    usage='edit-note <id/name> <title> [text]',
     description="Edit an existing note by id or name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
@@ -138,7 +172,7 @@ def search_notes(context: CommandContext) -> CommandResult:
 @input_error
 def edit_note(context: CommandContext) -> CommandResult:
     """Edit an existing note."""
-    validate_command_args(context.command, context.args, 3)
+    validate_command_args(context.command, context.args, 2)
 
     identifier, title, text = _parse_note_content(context.args)
     context.notes.edit_note(identifier, title, text)
@@ -206,8 +240,7 @@ def remove_tag(context: CommandContext) -> CommandResult:
     "find-by-tag",
     usage="find-by-tag <tag1> [tag2] [...]",
     description="Find notes by tags (returns notes with ANY of the given tags)",
-    category="notes",
-    arg_completions=(completion_source(CompletionSource.COMMAND),)
+    category="notes"
 )
 @input_error
 def find_by_tag(context: CommandContext) -> CommandResult:

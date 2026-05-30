@@ -8,6 +8,7 @@ from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
 from prompt_toolkit.history import InMemoryHistory
 
+from parsing_utils import split_command_input
 from dto import CommandResult
 from models import AddressBook, Notes
 from registry import ArgCompletionSpec, CompletionSource, CommandSpec, get_command_specs
@@ -33,9 +34,7 @@ class AssistantCompleter(Completer):
         del complete_event
 
         text = document.text_before_cursor
-        stripped_text = text.lstrip()
-        ends_with_space = text.endswith(" ")
-        words = stripped_text.split()
+        words, ends_with_space = _parse_input_for_completion(text)
 
         if not words:
             yield from self._complete_commands("")
@@ -92,7 +91,7 @@ class AssistantCompleter(Completer):
             return sorted(self.book.keys())
 
         if completion.source is CompletionSource.NOTE:
-            return sorted(self.notes.keys())
+            return sorted(note.name for note in self.notes.values())
 
         if completion.source is CompletionSource.CHOICES:
             return completion.values
@@ -168,7 +167,6 @@ def _build_toolbar_text(
 
 def _parse_input_for_completion(user_input: str) -> tuple[list[str], bool]:
     """Return words and space existence at the end of input."""
-    stripped_text = user_input.lstrip()
     ends_with_space = user_input.endswith(" ")
-    words = stripped_text.split()
+    words = split_command_input(user_input, allow_partial=True)
     return (words, ends_with_space)

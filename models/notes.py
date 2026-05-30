@@ -27,6 +27,10 @@ class Tag:
             raise NoteError("Tag must be a string")
 
         tag = tag.strip().lower()
+
+        if not tag:
+            raise NoteError("Tag must be a non empty string")
+
         return tag if tag.startswith("#") else f"#{tag}"
 
     def __str__(self) -> str:
@@ -187,13 +191,6 @@ class Notes(UserDict[str, Note]):
         return [
             note for note in self.data.values()
             if any(note.has_tag(tag) for tag in tags)
-        ]
-
-    def find_by_tags_all(self, *tags: str) -> list[Note]:
-        """Return notes that contain ALL of the given tags."""
-        return [
-            note for note in self.data.values()
-            if all(note.has_tag(tag) for tag in tags)
         ]
 
     def normalize(self) -> None:
