@@ -8,6 +8,7 @@ and supports shell-like quoted input for multi-word arguments.
 ## Requirements
 
 - Python 3.10+
+- `better-profanity`
 - `prompt_toolkit`
 - `rich`
 
@@ -78,10 +79,12 @@ If you use the local virtual environment:
 | `change-address <name> <new address>` | Change the contact address. |
 | `remove-address <name>` | Remove address from a contact. |
 | `add-note <name> <title> [text]` | Create a note. |
-| `edit-note <name> <title> [text]` | Edit a note by name. |
-| `delete-note <name>` | Delete a note by name. |
-| `note <name>` | Show one note by name. |
+| `edit-note <id/name> <title> [text]` | Edit a note by id or name. |
+| `delete-note <id/name>` | Delete a note by id or name. |
+| `note <id/name>` | Show one note by id or name. |
+| `search-notes <query>` | Search notes by name, title, or text. |
 | `notes` | Show all notes. |
+| `tag-sorted-notes` | Show all notes sorted by their first alphabetical tag. |
 | `add-tag <name> <tag>` | Add a tag to a note. |
 | `remove-tag <name> <tag>` | Remove a tag from a note. |
 | `find-by-tag <tag1> [tag2] [...]` | Find notes that match any of the given tags. |
@@ -102,6 +105,10 @@ If you use the local virtual environment:
 - Contact names are used as unique keys in the address book.
 - Note names are also unique. If a note name already exists, the app creates a
   unique variant such as `idea(1)`.
+- Note names cannot contain inappropriate words. If a note name contains an
+  inappropriate word, the note is not created.
+- Note titles and text are allowed to contain inappropriate words, but those
+  words are censored with `*` characters when notes are displayed.
 - `notes` and `find-by-tag` display notes from newest to oldest.
 - `find-by-tag` currently matches notes that contain any of the supplied tags.
 

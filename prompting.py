@@ -91,7 +91,7 @@ class AssistantCompleter(Completer):
             return sorted(self.book.keys())
 
         if completion.source is CompletionSource.NOTE:
-            return sorted(self.notes.keys())
+            return sorted(note.name for note in self.notes.values())
 
         if completion.source is CompletionSource.CHOICES:
             return completion.values
