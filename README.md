@@ -27,6 +27,13 @@ If you use the local virtual environment:
 .venv/bin/python main.py
 ```
 
+## CLI Input Features
+
+- Up and down arrows cycle through commands entered in the current session.
+- The prompt shows suggestions from the current session history as you type.
+- `Tab` completes command names and a small set of common arguments such as
+  `help` targets, contact or note names, and common `birthdays` day values.
+
 ## Data Persistence
 
 - The address book is loaded automatically when the application starts.
@@ -43,28 +50,31 @@ If you use the local virtual environment:
 | `hello` | Show a greeting. |
 | `help [command]` | Show all commands or detailed help for one command. |
 | `close` or `exit` | Close the app. |
-| `add [name] [phone]` | Add a contact or add a phone to an existing contact. |
-| `change [name] [old phone] [new phone]` | Change a phone number. |
-| `delete [name]` | Delete a contact. |
-| `remove-phone [name] [phone]` | Remove one phone number from a contact. |
-| `contact [name]` | Show the full contact card. |
+| `add <name> <phone>` | Add a contact or add a phone to an existing contact. |
+| `change <name> <old phone> <new phone>` | Change a phone number. |
+| `delete <name>` | Delete a contact. |
+| `remove-phone <name> <phone>` | Remove one phone number from a contact. |
+| `contact <name>` | Show the full contact card. |
 | `all` | Show all contacts. |
-| `search [query]` | Search contacts by name or phone. Show full contact card |
-| `add-email [name] [email]` | Add new email. |
-| `change-email [name] [old email] [new email]` | Change an email. |
-| `remove-email [name] [email]` | Remove one email from a contact. |
-| `add-birthday [name] [DD.MM.YYYY]` | Add or update birthday. |
-| `show-birthday [name]` | Show birthday for one contact. |
-| `birthdays [--days=7]` | Show upcoming birthdays. |
-| `add-address [name] [address]` | Add new contact address. |
-| `change-address [name] [new address]` | Change the contact address. |
-| `remove-address [name]` | Remove address from a contact. |
-| `add-note [name] [title] [text]` | Create a note. |
-| `search-notes [query]` | Search notes by name, title, or text. |
-| `edit-note [id/name] [title] [text]` | Edit a note by id or name. |
-| `delete-note [id/name]` | Delete a note by id or name. |
-| `note [id/name]` | Show one note by id or name. |
+| `search <query>` | Search contacts by name or phone. Show full contact card |
+| `add-email <name> <email>` | Add new email. |
+| `change-email <name> <old email> <new email>` | Change an email. |
+| `remove-email <name> <email>` | Remove one email from a contact. |
+| `add-birthday <name> <DD.MM.YYYY>` | Add or update birthday. |
+| `show-birthday <name>` | Show birthday for one contact. |
+| `birthdays [days]` | Show upcoming birthdays. |
+| `add-address <name> <address>` | Add new contact address. |
+| `change-address <name> <new address>` | Change the contact address. |
+| `remove-address <name>` | Remove address from a contact. |
+| `add-note <name> <title> [text]` | Create a note. |
+| `edit-note <id/name> <title> [text]` | Edit a note by id or name. |
+| `delete-note <id/name>` | Delete a note by id or name. |
+| `note <id/name>` | Show one note by id or name. |
+| `search-notes <query>` | Search notes by name, title, or text. |
 | `notes` | Show all notes. |
+| `add-tag <name> <tag>` | Add a tag to a note. |
+| `remove-tag <name> <tag>` | Remove a tag from a note. |
+| `find-by-tag <tag1> [tag2] [...]` | Find notes by tags. |
 
 ## Validation Rules
 

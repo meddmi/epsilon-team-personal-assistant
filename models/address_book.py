@@ -41,7 +41,10 @@ class AddressBook(UserDict[str, Record]):
         for record in self.data.values():
             searchable_values = [
                 record.name.value.lower(),
+                record.birthday.format() if record.birthday else "",
+                record.address.value.lower() if record.address else "",
                 *(phone.value for phone in record.phones),
+                *(email.value for email in record.emails),
             ]
 
             if any(normalized_query in value for value in searchable_values):
@@ -77,12 +80,6 @@ class AddressBook(UserDict[str, Record]):
             except ValueError:
                 return birthday.replace(year=year, day=28)
 
-        def shift_to_weekday(date_obj: date) -> date:
-            """Shift weekend dates to next Monday."""
-            weekday = date_obj.weekday()
-
-            return date_obj + timedelta(days=7 - weekday) if weekday >= 5 else date_obj
-
         today = datetime.today().date()
         results = []
 
@@ -100,15 +97,15 @@ class AddressBook(UserDict[str, Record]):
             days_difference = (next_birthday - today).days
 
             if 0 <= days_difference <= days:
-                celebration_day = shift_to_weekday(next_birthday)
                 user_to_congratulate = {
                     "name": record.name.value,
                     "birthday": birthday.strftime("%d.%m.%Y"),
-                    "congratulation_date": celebration_day.strftime("%d.%m.%Y"),
+                    "congratulation_date": next_birthday.strftime("%d.%m.%Y"),
                 }
                 results.append(user_to_congratulate)
 
         return results
+
 
     def __str__(self) -> str:
         records = "\n".join(str(record) for record in self.values())

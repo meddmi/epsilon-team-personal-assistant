@@ -4,7 +4,7 @@ Module for the contact address related commands:
 - remove-address
 - change-address
 """
-from registry import register_command
+from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
 from exceptions import ContactError
 from dto import CommandResult, CommandContext
@@ -12,9 +12,10 @@ from dto import CommandResult, CommandContext
 
 @register_command(
     "add-address",
-    usage='add-address [name] [address]',
+    usage='add-address <name> <address>',
     description="Add an address to existing contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 
 @input_error
@@ -35,9 +36,10 @@ def add_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "change-address",
-    usage="change-address [name] [new address]",
+    usage="change-address <name> <new address>",
     description="Change an existing address for a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 
 @input_error
@@ -56,9 +58,10 @@ def change_address(context: CommandContext) -> CommandResult:
 
 @register_command(
     "remove-address",
-    usage="remove-address [name]",
+    usage="remove-address <name>",
     description="Remove one address from a contact",
     category="contacts",
+    arg_completions=(completion_source(CompletionSource.CONTACT),),
 )
 
 @input_error
