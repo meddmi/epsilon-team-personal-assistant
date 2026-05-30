@@ -76,12 +76,12 @@ def show_note(context: CommandContext) -> CommandResult:
 @register_command(
     "search-notes",
     usage="search-notes [query]",
-    description="Search notes by text content",
+    description="Search notes by name, title, or text",
     category="notes",
 )
 @input_error
 def search_notes(context: CommandContext) -> CommandResult:
-    """Search notes by text content."""
+    """Search notes by name, title, or text."""
     validate_command_args(context.command, context.args, 1)
 
     query = " ".join(context.args).strip()

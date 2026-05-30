@@ -59,7 +59,7 @@ If you use the local virtual environment:
 | `change-address [name] [new address]` | Change the contact address. |
 | `remove-address [name]` | Remove address from a contact. |
 | `add-note [name] [title] [text]` | Create a note. |
-| `search-notes [query]` | Search notes by text content. |
+| `search-notes [query]` | Search notes by name, title, or text. |
 | `edit-note [id/name] [title] [text]` | Edit a note by id or name. |
 | `delete-note [id/name]` | Delete a note by id or name. |
 | `note [id/name]` | Show one note by id or name. |

@@ -94,17 +94,25 @@ class Notes(UserDict[str, Note]):
         return None
 
     def search(self, query: str) -> list[Note]:
-        """Return notes whose text contains the query."""
+        """Return notes whose name, title, or text contains the query."""
         normalized_query = query.strip().lower()
 
         if not normalized_query:
             return []
 
-        return [
-            note
-            for note in self.list_notes()
-            if normalized_query in note.text.lower()
-        ]
+        results = []
+
+        for note in self.list_notes():
+            searchable_values = [
+                note.name.lower(),
+                note.title.lower(),
+                note.text.lower(),
+            ]
+
+            if any(normalized_query in value for value in searchable_values):
+                results.append(note)
+
+        return results
 
     def edit_note(self, identifier: str, title: str, text: str) -> None:
         """Update an existing note by id or name."""
