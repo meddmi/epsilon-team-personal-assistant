@@ -204,3 +204,19 @@ def find_by_tag(context: CommandContext) -> CommandResult:
 
     notes = sorted(notes, key=lambda note: note.created_at, reverse=True)
     return CommandResult(message=_build_note_panels(notes))
+
+@register_command(
+    "notes-by-tag",
+    usage="notes-by-tag",
+    description="Show all notes sorted by tag alphabetically",
+    category="notes",
+)
+@input_error
+def notes_by_tag(context: CommandContext) -> CommandResult:
+    """Show all notes sorted by first tag alphabetically."""
+    notes = context.notes.sort_by_tags()
+
+    if not notes:
+        return CommandResult(message="No notes found")
+
+    return CommandResult(message="\n".join(str(note) for note in notes))

@@ -73,6 +73,7 @@ If you use the local virtual environment:
 | `add-tag <name> <tag>` | Add a tag to a note. |
 | `remove-tag <name> <tag>` | Remove a tag from a note. |
 | `find-by-tag <tag1> [tag2] [...]` | Find notes by tags. |
+| `notes-by-tag` | Show all notes sorted by tag alphabetically. |
 
 ## Validation Rules
 

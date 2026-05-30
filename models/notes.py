@@ -163,6 +163,13 @@ class Notes(UserDict[str, Note]):
             if all(note.has_tag(tag) for tag in tags)
         ]
 
+    def sort_by_tags(self) -> list[Note]:
+        """Return all notes sorted by their first tag alphabetically, untagged last."""
+        return sorted(
+            self.data.values(),
+            key=lambda note: (note.tags[0] if note.tags else "~"),
+    )
+
     def normalize(self) -> None:
         """Migrate loaded notes to the current structure and keys."""
         normalized_data = {}
