@@ -5,6 +5,7 @@ A command-line personal assistant for managing contacts and notes. Developed as 
 ## Requirements
 
 - Python 3.10+
+- `better-profanity`
 - `prompt_toolkit`
 - `rich`
 
@@ -66,9 +67,10 @@ If you use the local virtual environment:
 | `change-address <name> <new address>` | Change the contact address. |
 | `remove-address <name>` | Remove address from a contact. |
 | `add-note <name> <title> [text]` | Create a note. |
-| `edit-note <name> <title> [text]` | Edit a note by name. |
-| `delete-note <name>` | Delete a note by name. |
-| `note <name>` | Show one note by name. |
+| `edit-note <id/name> <title> [text]` | Edit a note by id or name. |
+| `delete-note <id/name>` | Delete a note by id or name. |
+| `note <id/name>` | Show one note by id or name. |
+| `search-notes <query>` | Search notes by name, title, or text. |
 | `notes` | Show all notes. |
 | `add-tag <name> <tag>` | Add a tag to a note. |
 | `remove-tag <name> <tag>` | Remove a tag from a note. |
@@ -78,6 +80,10 @@ If you use the local virtual environment:
 
 - Phone numbers must contain 10 digits after normalization.
 - Birthdays must use `DD.MM.YYYY`.
+- Note names cannot contain inappropriate words. If a note name contains an
+  inappropriate word, the note is not created.
+- Note titles and text are allowed to contain inappropriate words, but those
+  words are censored with `*` characters when notes are displayed.
 
 ## Notes
 

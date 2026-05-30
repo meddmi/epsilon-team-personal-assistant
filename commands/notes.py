@@ -3,6 +3,7 @@ Module for notes commands:
 - add-note
 - notes
 - note
+- search-notes
 - edit-note
 - delete-note
 - add-tag
@@ -11,7 +12,6 @@ Module for notes commands:
 """
 from rich.console import Group
 from rich.panel import Panel
-from rich.table import Table
 from rich.text import Text
 
 from registry import CompletionSource, completion_source, register_command
@@ -43,9 +43,10 @@ def _build_note_panel(note: Note) -> Panel:
 
     return Panel(
         content,
-        title=note.name,
+        title=f"{note.name}({note.id})",
         title_align="left",
         border_style="blue",
+        expand=False
     )
 
 def _build_note_panels(notes: list[Note]) -> Group:
@@ -55,18 +56,18 @@ def _build_note_panels(notes: list[Note]) -> Group:
 
 @register_command(
     "add-note",
-    usage='add-note <name> <title> [text]',
-    description="Create a new note by name and title",
+    usage='add-note <name> <title> <text>',
+    description="Create a new note by name, title, and text",
     category="notes",
 )
 @input_error
 def add_note(context: CommandContext) -> CommandResult:
     """Create a new note."""
-    validate_command_args(context.command, context.args, 2)
+    validate_command_args(context.command, context.args, 3)
 
     name, title, text = _parse_note_content(context.args)
     note = context.notes.create_note(name, title, text)
-    return CommandResult(message=f"Note created: {note.name}")
+    return CommandResult(message=f"Note created: {note.id}")
 
 
 @register_command(
@@ -88,59 +89,75 @@ def show_notes(context: CommandContext) -> CommandResult:
 
     return CommandResult(message=_build_note_panels(notes))
 
-
 @register_command(
     "note",
-    usage="note <name>",
-    description="Show one note by name",
+    usage="note <id/name>",
+    description="Show one note by id or name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def show_note(context: CommandContext) -> CommandResult:
-    """Show one note by name."""
+    """Show one note by id or name."""
     validate_command_args(context.command, context.args, 1)
 
-    name, *_ = context.args
-    note = context.notes.find(name)
+    identifier, *_ = context.args
+    note = context.notes.find(identifier)
 
     if note is None:
         raise NoteError("Note not found")
 
     return CommandResult(message=_build_note_panel(note))
 
+@register_command(
+    "search-notes",
+    usage="search-notes [query]",
+    description="Search notes by name, title, or text",
+    category="notes",
+)
+@input_error
+def search_notes(context: CommandContext) -> CommandResult:
+    """Search notes by name, title, or text."""
+    validate_command_args(context.command, context.args, 1)
+
+    query = " ".join(context.args).strip()
+    matches = context.notes.search(query)
+
+    if not matches:
+        return CommandResult(message="No matching notes found")
+
+    return CommandResult(message=_build_note_panels(matches))
 
 @register_command(
     "edit-note",
-    usage='edit-note <name> <title> [text]',
-    description="Edit an existing note by name",
+    usage='edit-note <id/name> <title> <text>',
+    description="Edit an existing note by id or name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def edit_note(context: CommandContext) -> CommandResult:
     """Edit an existing note."""
-    validate_command_args(context.command, context.args, 2)
+    validate_command_args(context.command, context.args, 3)
 
-    name, title, text = _parse_note_content(context.args)
-    context.notes.edit_note(name, title, text)
+    identifier, title, text = _parse_note_content(context.args)
+    context.notes.edit_note(identifier, title, text)
     return CommandResult(message="Note updated")
-
 
 @register_command(
     "delete-note",
-    usage="delete-note <name>",
-    description="Delete a note by name",
+    usage="delete-note <id/name>",
+    description="Delete a note by id or name",
     category="notes",
     arg_completions=(completion_source(CompletionSource.NOTE),)
 )
 @input_error
 def delete_note(context: CommandContext) -> CommandResult:
-    """Delete a note by name."""
+    """Delete a note by id or name."""
     validate_command_args(context.command, context.args, 1)
 
-    name, *_ = context.args
-    context.notes.delete_note(name)
+    identifier, *_ = context.args
+    context.notes.delete_note(identifier)
     return CommandResult(message="Note deleted")
 
 @register_command(
