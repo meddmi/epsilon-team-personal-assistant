@@ -113,7 +113,7 @@ class Address(Field):
         if not isinstance(value, str):
             raise ContactError("Address must be a string")
 
-        return value.strip().lower()
+        return value.strip()
 
     @classmethod
     def validate(cls, value: str) -> None:

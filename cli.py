@@ -1,12 +1,12 @@
 """Module for the assistant bot CLI."""
 from typing import Callable
-import shlex
 from rich.console import Console, RenderableType
 
 from dto import CommandResult, CommandContext
 from models import AddressBook, Notes
 from exceptions import CommandError
 from commands.utils import input_error
+from parsing_utils import split_command_input
 from prompting import create_prompt_session
 
 console = Console()
@@ -23,7 +23,7 @@ def print_message(message: RenderableType, style: str | None = None) -> None:
 
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     """Parse user input into command and arguments."""
-    parts = shlex.split(user_input.strip())
+    parts = split_command_input(user_input)
 
     if not parts:
         return "", []

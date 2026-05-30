@@ -2,6 +2,9 @@
 
 A command-line personal assistant for managing contacts and notes. Developed as final project of the Neoversity Python course.
 
+The app stores contacts and notes locally, provides interactive command help,
+and supports shell-like quoted input for multi-word arguments.
+
 ## Requirements
 
 - Python 3.10+
@@ -32,15 +35,24 @@ If you use the local virtual environment:
 - The prompt shows suggestions from the current session history as you type.
 - `Tab` completes command names and a small set of common arguments such as
   `help` targets, contact or note names, and common `birthdays` day values.
+- Command input is parsed with shell-like quoting rules, so multi-word values
+  should be wrapped in quotes when needed, for example
+  `add-address John "221B Baker Street"` or
+  `add-note trip "Weekend plan" "Book hotel and buy tickets"`.
+- The prompt and command execution use the same parsing rules, including
+  best-effort handling of unfinished quoted input while typing.
 
 ## Data Persistence
 
 - The address book is loaded automatically when the application starts.
-- The current state is saved automatically when the application exits.
+- The current state is saved automatically when the application exits without
+  an unhandled exception.
 - Data is stored in a local pickle file named `.addressbook.pkl`.
 - Notes are loaded and saved independently in `.notes.pkl`.
-- If the storage file does not exist or cannot be read, the application starts
-  with an empty data.
+- If a storage file does not exist or cannot be read, the application starts
+  with empty data.
+- Older saved notes are normalized on load to backfill newer fields such as
+  `name`, `title`, `text`, `created_at`, and `tags`.
 
 ## Available Commands
 
@@ -55,7 +67,7 @@ If you use the local virtual environment:
 | `remove-phone <name> <phone>` | Remove one phone number from a contact. |
 | `contact <name>` | Show the full contact card. |
 | `all` | Show all contacts. |
-| `search <query>` | Search contacts by name or phone. Show full contact card |
+| `search <query>` | Search contacts by name, birthday, address, phone, or email. |
 | `add-email <name> <email>` | Add new email. |
 | `change-email <name> <old email> <new email>` | Change an email. |
 | `remove-email <name> <email>` | Remove one email from a contact. |
@@ -72,12 +84,26 @@ If you use the local virtual environment:
 | `notes` | Show all notes. |
 | `add-tag <name> <tag>` | Add a tag to a note. |
 | `remove-tag <name> <tag>` | Remove a tag from a note. |
-| `find-by-tag <tag1> [tag2] [...]` | Find notes by tags. |
+| `find-by-tag <tag1> [tag2] [...]` | Find notes that match any of the given tags. |
 
 ## Validation Rules
 
-- Phone numbers must contain 10 digits after normalization.
+- Contact names, note names, note titles, and note text cannot be empty.
+- Phone numbers must contain exactly 10 digits.
 - Birthdays must use `DD.MM.YYYY`.
+- Emails are normalized to lowercase and must have a valid email format.
+- Addresses must be 5 to 100 characters and may contain letters, digits,
+  spaces, commas, periods, slashes, hyphens, `#`, and `+`.
+- Note tags are normalized to lowercase and automatically get a `#` prefix if
+  missing.
+
+## Notes Behavior
+
+- Contact names are used as unique keys in the address book.
+- Note names are also unique. If a note name already exists, the app creates a
+  unique variant such as `idea(1)`.
+- `notes` and `find-by-tag` display notes from newest to oldest.
+- `find-by-tag` currently matches notes that contain any of the supplied tags.
 
 ## Notes
 
@@ -86,6 +112,14 @@ Commands are separated into modules instead of being handled by one long
 separate modules. Each command module registers handlers with
 `@register_command`, and `main.py` loads command modules dynamically on startup.
 
-The application uses `AddressBookStorage` as a context manager, which loads the
-saved address book before the CLI loop starts and saves it again after the loop
-finishes.
+The application uses a shared generic `PickleStorage` base class with
+specialized `AddressBookStorage` and `NotesStorage` wrappers. These storage
+classes are used as context managers, loading saved data before the CLI loop
+starts and saving it again after the loop finishes successfully.
+
+## Team
+
+- Dmytro Medvediev - [@meddmi](https://github.com/meddmi)
+- Manoilov Andrii - [@ManoylovAC](https://github.com/ManoylovAC)
+- Volodymyr Lysak - [@volodumurPyt1207](https://github.com/volodumurPyt1207)
+- Roma Bondarchuk - [@GHIceStar](https://github.com/GHIceStar)

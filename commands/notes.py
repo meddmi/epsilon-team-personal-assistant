@@ -11,7 +11,6 @@ Module for notes commands:
 """
 from rich.console import Group
 from rich.panel import Panel
-from rich.table import Table
 from rich.text import Text
 
 from registry import CompletionSource, completion_source, register_command
@@ -189,8 +188,7 @@ def remove_tag(context: CommandContext) -> CommandResult:
     "find-by-tag",
     usage="find-by-tag <tag1> [tag2] [...]",
     description="Find notes by tags (returns notes with ANY of the given tags)",
-    category="notes",
-    arg_completions=(completion_source(CompletionSource.COMMAND),)
+    category="notes"
 )
 @input_error
 def find_by_tag(context: CommandContext) -> CommandResult:
