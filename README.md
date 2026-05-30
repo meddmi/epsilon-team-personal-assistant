@@ -5,6 +5,7 @@ A command-line personal assistant for managing contacts and notes. Developed as 
 ## Requirements
 
 - Python 3.10+
+- `better-profanity`
 - `prompt_toolkit`
 - `rich`
 
@@ -69,6 +70,10 @@ If you use the local virtual environment:
 
 - Phone numbers must contain 10 digits after normalization.
 - Birthdays must use `DD.MM.YYYY`.
+- Note names cannot contain inappropriate words. If a note name contains an
+  inappropriate word, the note is not created.
+- Note titles and text are allowed to contain inappropriate words, but those
+  words are censored with `*` characters when notes are displayed.
 
 ## Notes
 

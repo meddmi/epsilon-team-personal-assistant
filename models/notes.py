@@ -5,6 +5,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from exceptions import NoteError
+from text_validation import contains_inappropriate_words, validate_and_censor_note
 
 
 NOTE_ID_LENGTH = 8
@@ -27,14 +28,9 @@ class Note:
         clean_title = title.strip()
         clean_text = text.strip()
 
-        if not clean_name:
-            raise NoteError("Note name cannot be empty")
-
-        if not clean_title:
-            raise NoteError("Note title cannot be empty")
-
-        if not clean_text:
-            raise NoteError("Note text cannot be empty")
+        _validate_note_name(clean_name)
+        _validate_required_text(clean_title, "Note title cannot be empty")
+        _validate_required_text(clean_text, "Note text cannot be empty")
 
         return cls(
             id=uuid4().hex[:NOTE_ID_LENGTH],
@@ -49,11 +45,8 @@ class Note:
         clean_title = title.strip()
         clean_text = text.strip()
 
-        if not clean_title:
-            raise NoteError("Note title cannot be empty")
-
-        if not clean_text:
-            raise NoteError("Note text cannot be empty")
+        _validate_required_text(clean_title, "Note title cannot be empty")
+        _validate_required_text(clean_text, "Note text cannot be empty")
 
         self.title = clean_title
         self.text = clean_text
@@ -61,10 +54,14 @@ class Note:
     def __str__(self) -> str:
         """Return a compact string representation of the note."""
         created_at_str = self.created_at.strftime("%d.%m.%Y %H:%M:%S")
-        if self.text == self.title:
-            return f"{self.id} | {self.name} | {created_at_str} | {self.title}"
+        display_name = validate_and_censor_note(self.name)
+        display_title = validate_and_censor_note(self.title)
+        display_text = validate_and_censor_note(self.text)
 
-        return f"{self.id} | {self.name} | {created_at_str} | {self.title} | {self.text}"
+        if self.text == self.title:
+            return f"{self.id} | {display_name} | {created_at_str} | {display_title}"
+
+        return f"{self.id} | {display_name} | {created_at_str} | {display_title} | {display_text}"
 
 
 class Notes(UserDict[str, Note]):
@@ -158,8 +155,7 @@ class Notes(UserDict[str, Note]):
         """Generate a unique note name, appending a numeric suffix if needed."""
         clean_name = name.strip()
 
-        if not clean_name:
-            raise NoteError("Note name cannot be empty")
+        _validate_note_name(clean_name)
 
         notes_data = self.data if data is None else data
 
@@ -218,3 +214,17 @@ class Notes(UserDict[str, Note]):
             return True
 
         return any(note.id == note_id and note is not ignore_note for note in data.values())
+
+
+def _validate_required_text(text: str, empty_message: str) -> None:
+    """Validate required text."""
+    if not text:
+        raise NoteError(empty_message)
+
+
+def _validate_note_name(name: str) -> None:
+    """Validate note name and reject inappropriate words."""
+    _validate_required_text(name, "Note name cannot be empty")
+
+    if contains_inappropriate_words(name):
+        raise NoteError("Cannot create note because of inappropriate note name")
