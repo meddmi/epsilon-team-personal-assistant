@@ -5,7 +5,7 @@ Module for the base contacts commands:
 - phone
 - all
 """
-from rich.table import Table
+from rich.table import Table, box
 
 from registry import CompletionSource, completion_source, register_command
 from commands.utils import input_error, validate_command_args
@@ -23,9 +23,10 @@ def _build_contacts_table(records: list[Record]) -> Table:
     """Build a Rich table for one or more contact records."""
     table = Table(
         header_style="bold cyan",
-        box=None,
+        box=box.SIMPLE,
         expand=True,
         pad_edge=False,
+        show_lines=True,
     )
     column_style = "green"
     table.add_column("Name", style=column_style)
